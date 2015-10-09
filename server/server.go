@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
     "bytes"
@@ -7,7 +7,7 @@ import (
     "html/template"
     "gopkg.in/gomail.v2"
     "fmt"
-    "encoding/json"
+  //  "encoding/json"
 )
 
 func check(e error) {
@@ -24,7 +24,7 @@ func sendEmail(from string, to string, subject string, email string){
   m.SetHeader("Subject", subject)
   m.SetBody("text/html", email)
 
-  d := gomail.NewPlainDialer("smtp.gmail.com", 587, "vascoasramos@gmail.com", "Pai121Natal")
+  d := gomail.NewPlainDialer("smtp.gmail.com", 587, "***@gmail.com", "***")
 
   if err := d.DialAndSend(m); err != nil {
       panic(err)
@@ -34,16 +34,23 @@ func sendEmail(from string, to string, subject string, email string){
 }
 
 
+func getTemplate(templateName string) (*Template){
+  // Reading Html Template
+  t := template.New("reportEmail.html") //create a new template
+  t, err := t.ParseFiles("tmpl/reportEmail.html") //open and parse a template text file
+  check(err)
+
+  return t
+}
+
+
 func getPostRequest(rw http.ResponseWriter, req *http.Request) {
 
     // Parsing Post Data
     err := req.ParseForm()
     check(err)
 
-    // Reading Html Template
-    t := template.New("reportEmail.html") //create a new template
-    t, err = t.ParseFiles("tmpl/reportEmail.html") //open and parse a template text file
-    check(err)
+    t := getTemplate("reportEmail.html")
 
     // Build Parameters from Post
     parameters := struct {
