@@ -7,8 +7,16 @@ import (
     "html/template"
     "gopkg.in/gomail.v2"
     "fmt"
-  //  "encoding/json"
+    "encoding/json"
+    "io/ioutil"
 )
+ /*
+type Credentials struct {
+     string
+    Body string
+    Time int64
+}
+*/
 
 func check(e error) {
     if e != nil {
@@ -34,45 +42,48 @@ func sendEmail(from string, to string, subject string, email string){
 }
 
 
-func getTemplate(templateName string) (*Template){
+func getReportTemplate(parameters interface{}) string {
   // Reading Html Template
   t := template.New("reportEmail.html") //create a new template
   t, err := t.ParseFiles("tmpl/reportEmail.html") //open and parse a template text file
   check(err)
+  // Creating Email Document from Template
+  var doc bytes.Buffer
+  err = t.Execute(&doc, parameters)
+  check(err)
 
-  return t
+  s := doc.String()
+
+  return s
 }
 
 
 func getPostRequest(rw http.ResponseWriter, req *http.Request) {
-
     // Parsing Post Data
     err := req.ParseForm()
     check(err)
-
-    t := getTemplate("reportEmail.html")
-
     // Build Parameters from Post
     parameters := struct {
-        Title string
         Client string
         Report string
     }{
-        "New Candidate",
         req.Form.Get("clientName"),
         req.Form.Get("report"),
     }
-    fmt.Println(req.Form.Get("clientName"))
-    // Creating Email Document from Template
-    var doc bytes.Buffer
-    err = t.Execute(&doc, &parameters)
-    check(err)
-    s := doc.String()
 
+    // Build Report
+    s := getReportTemplate(&parameters)
     sendEmail("vascoasramos@gmail.com", "vasco@tyba.com", "Testing Emails", s)
 }
 
 func main() {
+    file, e := ioutil.ReadFile("credentials.json")
+    check(e)
+
+    var jsontype jsonobject
+    json.Unmarshal(file, &jsontype)
+    fmt.Printf("Results: %v\n", jsontype)
+
     http.HandleFunc("/email", getPostRequest)
     log.Fatal(http.ListenAndServe(":8080", nil))
 }
