@@ -13,10 +13,10 @@ import (
 
 
 type Credentials struct {
-    host string `json:"host"`
-    user string `json:"user"`
-    pass string `json:"pass"`
-    port int    `json:"port"`
+    Host string `json:"host"`
+    User string `json:"user"`
+    Pass string `json:"pass"`
+    Port int    `json:"port"`
 }
 
 func check(e error) {
@@ -33,13 +33,14 @@ func sendEmail(from string, to string, subject string, email string){
   m.SetHeader("Subject", subject)
   m.SetBody("text/html", email)
 
+  // This should be in it's own function
   file, e := ioutil.ReadFile("./credentials.json")
   check(e)
-
   var c Credentials
   json.Unmarshal(file, &c)
+  // -----------------------------------
 
-  d := gomail.NewPlainDialer(c.host, c.port, c.user, c.pass)
+  d := gomail.NewPlainDialer(c.Host, c.Port, c.User, c.Pass)
 
   if err := d.DialAndSend(m); err != nil {
       panic(err)
@@ -56,7 +57,8 @@ func getReportTemplate(parameters interface{}) string {
   check(err)
   // Creating Email Document from Template
   var doc bytes.Buffer
-  err = t.Execute(&doc, parameters)
+  fmt.Println(parameters)
+  err = t.Execute(&doc, &parameters)
   check(err)
 
   s := doc.String()
@@ -77,14 +79,12 @@ func getPostRequest(rw http.ResponseWriter, req *http.Request) {
         req.Form.Get("clientName"),
         req.Form.Get("report"),
     }
-
     // Build Report
-    s := getReportTemplate(&parameters)
+    s := getReportTemplate(parameters)
     sendEmail("vascoasramos@gmail.com", "vasco@tyba.com", "Testing Emails", s)
 }
 
 func main() {
-
     http.HandleFunc("/email", getPostRequest)
     log.Fatal(http.ListenAndServe(":8080", nil))
 }
