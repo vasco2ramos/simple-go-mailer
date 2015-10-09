@@ -10,13 +10,14 @@ import (
     "encoding/json"
     "io/ioutil"
 )
- /*
+
+
 type Credentials struct {
-     string
-    Body string
-    Time int64
+    host string `json:"host"`
+    user string `json:"user"`
+    pass string `json:"pass"`
+    port int    `json:"port"`
 }
-*/
 
 func check(e error) {
     if e != nil {
@@ -32,7 +33,13 @@ func sendEmail(from string, to string, subject string, email string){
   m.SetHeader("Subject", subject)
   m.SetBody("text/html", email)
 
-  d := gomail.NewPlainDialer("smtp.gmail.com", 587, "***@gmail.com", "***")
+  file, e := ioutil.ReadFile("./credentials.json")
+  check(e)
+
+  var c Credentials
+  json.Unmarshal(file, &c)
+
+  d := gomail.NewPlainDialer(c.host, c.port, c.user, c.pass)
 
   if err := d.DialAndSend(m); err != nil {
       panic(err)
@@ -77,12 +84,6 @@ func getPostRequest(rw http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-    file, e := ioutil.ReadFile("credentials.json")
-    check(e)
-
-    var jsontype jsonobject
-    json.Unmarshal(file, &jsontype)
-    fmt.Printf("Results: %v\n", jsontype)
 
     http.HandleFunc("/email", getPostRequest)
     log.Fatal(http.ListenAndServe(":8080", nil))
