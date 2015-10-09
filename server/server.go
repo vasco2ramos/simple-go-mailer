@@ -11,7 +11,6 @@ import (
     "io/ioutil"
 )
 
-
 type Credentials struct {
     Host string `json:"host"`
     User string `json:"user"`
@@ -24,7 +23,6 @@ func check(e error) {
         panic(e)
     }
 }
-
 
 func sendEmail(from string, to string, subject string, email string){
   m := gomail.NewMessage()
