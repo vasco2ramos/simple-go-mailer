@@ -3,8 +3,8 @@
 
 Simple Go Mailer
 
-Get Templates HTML from /tmpl - Done
+Run server.go
 
-Fill in Blanks -
+Post requests to it and bam.
 
-Send Email - Done
+Next steps include refactoring and including into a webservice
