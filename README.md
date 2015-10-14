@@ -3,10 +3,12 @@
 
 Simple Go Mailer
 
-Run server.go
+- Run server.go
+- Open the client (index.html) in your browser
 
-Post requests to it and bam. (No more documentation required, because good practices!)
+Next Steps:
 
-Next Steps is making this more standardized solution rather than fixed to this
-
-PS: Bam might also mean blow up...
+- Standardize Solution
+- Documentation
+- Testing
+- Allow interaction with 3rd Party services.
