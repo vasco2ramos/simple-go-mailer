@@ -1,4 +1,4 @@
-package main
+package simple-mailer
 
 import (
     "bytes"
@@ -24,6 +24,15 @@ func check(e error) {
     }
 }
 
+
+func getCredentials() Credentials {
+  file, e := ioutil.ReadFile("./credentials.json")
+  check(e)
+  var c Credentials
+  json.Unmarshal(file, &c)
+  return c
+}
+
 func sendEmail(from string, to string, subject string, email string){
   m := gomail.NewMessage()
   m.SetHeader("From", from)
@@ -31,12 +40,7 @@ func sendEmail(from string, to string, subject string, email string){
   m.SetHeader("Subject", subject)
   m.SetBody("text/html", email)
 
-  // This should be in it's own function
-  file, e := ioutil.ReadFile("./credentials.json")
-  check(e)
-  var c Credentials
-  json.Unmarshal(file, &c)
-  // -----------------------------------
+  c = GetCredentials()
 
   d := gomail.NewPlainDialer(c.Host, c.Port, c.User, c.Pass)
 
@@ -50,8 +54,8 @@ func sendEmail(from string, to string, subject string, email string){
 
 func getReportTemplate(parameters interface{}) string {
   // Reading Html Template
-  t := template.New("reportEmail.html") //create a new template
-  t, err := t.ParseFiles("tmpl/reportEmail.html") //open and parse a template text file
+  t := template.New("sample.html") //create a new template
+  t, err := t.ParseFiles("tmpl/sample.html") //open and parse a template text file
   check(err)
   // Creating Email Document from Template
   var doc bytes.Buffer
@@ -81,6 +85,7 @@ func getPostRequest(rw http.ResponseWriter, req *http.Request) {
     s := getReportTemplate(parameters)
     sendEmail("vascoasramos@gmail.com", "vasco@tyba.com", "Testing Emails", s)
 }
+
 
 func main() {
     http.HandleFunc("/email", getPostRequest)
