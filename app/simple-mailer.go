@@ -1,4 +1,4 @@
-package simple-mailer
+package simplemailer
 
 import (
     "bytes"
@@ -40,7 +40,7 @@ func sendEmail(from string, to string, subject string, email string){
   m.SetHeader("Subject", subject)
   m.SetBody("text/html", email)
 
-  c = GetCredentials()
+  c := getCredentials()
 
   d := gomail.NewPlainDialer(c.Host, c.Port, c.User, c.Pass)
 
@@ -70,6 +70,10 @@ func getReportTemplate(parameters interface{}) string {
 
 
 func getPostRequest(rw http.ResponseWriter, req *http.Request) {
+    from := "test@test.com"
+    to := "john@somewhere.com"
+    subject := "This is a great Subject"
+
     // Parsing Post Data
     err := req.ParseForm()
     check(err)
@@ -83,7 +87,7 @@ func getPostRequest(rw http.ResponseWriter, req *http.Request) {
     }
     // Build Report
     s := getReportTemplate(parameters)
-    sendEmail("vascoasramos@gmail.com", "vasco@tyba.com", "Testing Emails", s)
+    sendEmail(from, to, subject, s)
 }
 
 
